@@ -1,3 +1,5 @@
 # Bitunix Terminal Releases
 
-This public repository contains only official Windows installer releases and update metadata for Bitunix Terminal. The application source code is maintained separately in a private repository.
+Публичный канал официальных Windows-установщиков и встроенных обновлений Bitunix Terminal.
+
+Здесь хранятся только скомпилированные desktop-файлы и packaging metadata. Исходный TypeScript находится в приватном основном репозитории. GitHub Actions собирает из проверенного payload NSIS installer, `latest.yml`, blockmap и SHA-256 manifest.
