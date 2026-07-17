@@ -73,11 +73,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $assets = Get-ChildItem release -File | Where-Object { $_.Extension -in ".exe", ".blockmap", ".yml", ".txt" } | ForEach-Object { $_.FullName }
+          $assets = Get-ChildItem release -File | Where-Object { $_.Extension -in ".exe", ".blockmap", ".txt" -or $_.Name -eq "latest.yml" } | ForEach-Object { $_.FullName }
           if (-not $assets) { throw "Updater assets are missing." }
           $notes = "Встроенное обновление Bitunix Terminal 0.4.0-beta.2. Устанавливается поверх beta.1 без удаления приложения и настроек."
           gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
+            $existingAssets = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG" --jq ".assets[].name"
+            foreach ($assetName in $existingAssets) {
+              gh release delete-asset $env:RELEASE_TAG $assetName --repo $env:GITHUB_REPOSITORY --yes
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            }
             gh release upload $env:RELEASE_TAG $assets --repo $env:GITHUB_REPOSITORY --clobber
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --title "Bitunix Terminal 0.4.0-beta.2" --prerelease --notes $notes
